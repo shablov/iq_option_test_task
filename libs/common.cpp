@@ -5,30 +5,28 @@ int createSocket()
 	return socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
 }
 
-struct sockaddr_in getSelfSockaddr( uint16_t port )
+struct sockaddr_in getSelfSockaddr(const uint16_t port )
 {
-	struct sockaddr_in self;
-	std::memset( &self, sizeof( self ), 0x00 );
+	struct sockaddr_in self{};
 	self.sin_family = AF_INET;
 	self.sin_port = htons( port );
 	self.sin_addr.s_addr = htonl( INADDR_ANY );
 	return self;
 }
 
-struct sockaddr_in getRemoteSockaddr( std::string_view address, uint16_t port )
+struct sockaddr_in getRemoteSockaddr(const std::string_view address, const uint16_t port )
 {
-	struct sockaddr_in _sockaddr;
-	std::memset( &_sockaddr, sizeof( _sockaddr ), 0x00 );
-	_sockaddr.sin_family = AF_INET;
-	_sockaddr.sin_port = htons( port );
-	inet_aton( address.data(), &_sockaddr.sin_addr );
+	struct sockaddr_in remote{};
+	remote.sin_family = AF_INET;
+	remote.sin_port = htons( port );
+	inet_aton( address.data(), &remote.sin_addr );
 
-	return _sockaddr;
+	return remote;
 }
 
-void bindSocket( int socket, uint16_t port )
+void bindSocket(const int socket, const uint16_t port )
 {
-	struct sockaddr_in self = getSelfSockaddr( port );
+	const auto self = getSelfSockaddr( port );
 
-	bind( socket, reinterpret_cast< struct sockaddr* >( &self ), sizeof( self ) );
+	bind( socket, reinterpret_cast< const struct sockaddr* >( &self ), sizeof( self ) );
 }

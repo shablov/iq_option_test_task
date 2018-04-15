@@ -2,39 +2,47 @@
 
 #include <iostream>
 
-Event::Event( User user, Event::Type type ) : _user( user ), _type( type )
+std::ostream& operator<<( std::ostream& out_stream, const Event::Type& type )
+{
+	out_stream << static_cast< std::underlying_type_t< Event::Type > >( type );
+	return out_stream;
+}
+
+std::istream& operator>>( std::istream& in_stream, Event::Type& type )
+{
+	type = Event::Type::undefined;
+
+	std::underlying_type_t< Event::Type > tmp_type;
+	in_stream >> tmp_type;
+
+	switch ( static_cast< Event::Type >( tmp_type ) ) {
+		case Event::Type::user_registered:
+		case Event::Type::user_renamed:
+		case Event::Type::user_deal_won:
+		case Event::Type::user_connected:
+		case Event::Type::user_disconnected:
+		case Event::Type::undefined:
+			type = static_cast< Event::Type >( tmp_type );
+	}
+
+	return in_stream;
+}
+
+Event::Event( const User user, const Type type ) : _user( user ), _type( type )
 {
 }
 
-Event::Type Event::type() const
+Event::Type Event::type() const noexcept
 {
 	return _type;
 }
 
-void Event::setType( const Type& type )
+void Event::setType( const Type& type ) noexcept
 {
 	_type = type;
 }
 
-const char* Event::type_name() const
-{
-	switch ( _type ) {
-		case Type::undefined:
-			return "undefined";
-		case Type::user_registered:
-			return "user_registered";
-		case Type::user_renamed:
-			return "user_renamed";
-		case Type::user_deal_won:
-			return "user_deal_won";
-		case Type::user_connected:
-			return "user_connected";
-		case Type::user_disconnected:
-			return "user_disconnected";
-	}
-}
-
-Event::User Event::user() const
+Event::User Event::user() const noexcept
 {
 	return _user;
 }
@@ -79,15 +87,14 @@ std::istream& BaseEvent::finish_reading( std::istream& in_stream )
 
 std::ostream& operator<<( std::ostream& out_stream, const Event& event )
 {
-	//	out_stream << event.type_name() << " " << event._user;
-	out_stream << static_cast< std::underlying_type_t< Event::Type > >( event._type ) << " " << event._user;
+	out_stream << event._type << " " << event._user;
 	return event.to_stream( out_stream );
 }
 
 std::istream& operator>>( std::istream& in_stream, Event& event )
 {
 	if ( Event::Type::undefined == event._type ) {
-		return in_stream >> *reinterpret_cast< std::underlying_type_t< Event::Type >* >( &event._type ) >> event._user;
+		return in_stream >> event._type >> event._user;
 	}
 	else {
 		return event.finish_reading( in_stream );
@@ -98,7 +105,7 @@ UserRegisteredEvent::UserRegisteredEvent( const Event& event ) : Event( event )
 {
 }
 
-UserRegisteredEvent::UserRegisteredEvent( User user, std::string_view name )
+UserRegisteredEvent::UserRegisteredEvent( const User user, const std::string_view name )
     : Event( user, Type::user_registered ), _name( name )
 {
 }
@@ -121,7 +128,7 @@ std::string UserRegisteredEvent::name() const
 	return _name;
 }
 
-void UserRegisteredEvent::setName( const std::string& name )
+void UserRegisteredEvent::setName( const std::string_view name )
 {
 	_name = name;
 }
@@ -130,8 +137,7 @@ UserRenamedEvent::UserRenamedEvent( const Event& event ) : Event( event )
 {
 }
 
-UserRenamedEvent::UserRenamedEvent( User user, std::string_view name )
-    : Event( user, Type::user_renamed ), _name( name )
+UserRenamedEvent::UserRenamedEvent( const User user, const std::string_view name ) : Event( user, Type::user_renamed ), _name( name )
 {
 }
 
@@ -153,7 +159,7 @@ std::string UserRenamedEvent::name() const
 	return _name;
 }
 
-void UserRenamedEvent::setName( const std::string& name )
+void UserRenamedEvent::setName( const std::string_view name )
 {
 	_name = name;
 }
@@ -162,7 +168,7 @@ UserDealWonEvent::UserDealWonEvent( const Event& event ) : Event( event )
 {
 }
 
-UserDealWonEvent::UserDealWonEvent( User user, std::chrono::nanoseconds time, int64_t amount )
+UserDealWonEvent::UserDealWonEvent( const User user, const std::chrono::nanoseconds time, const int64_t amount )
     : Event( user, Type::user_deal_won ), _time( time ), _amount( amount )
 {
 }
@@ -181,7 +187,7 @@ std::istream& UserDealWonEvent::finish_reading( std::istream& in_stream )
 	return in_stream;
 }
 
-int64_t UserDealWonEvent::amount() const
+int64_t UserDealWonEvent::amount() const noexcept
 {
 	return _amount;
 }
@@ -191,7 +197,7 @@ void UserDealWonEvent::setAmount( const int64_t& amount )
 	_amount = amount;
 }
 
-std::chrono::nanoseconds UserDealWonEvent::time() const
+std::chrono::nanoseconds UserDealWonEvent::time() const noexcept
 {
 	return _time;
 }
@@ -205,7 +211,7 @@ UserConnectedEvent::UserConnectedEvent( const Event& event ) : Event( event )
 {
 }
 
-UserConnectedEvent::UserConnectedEvent( User user ) : Event( user, Type::user_connected )
+UserConnectedEvent::UserConnectedEvent( const User user ) : Event( user, Type::user_connected )
 {
 }
 
@@ -223,7 +229,7 @@ UserDisconnectedEvent::UserDisconnectedEvent( const Event& event ) : Event( even
 {
 }
 
-UserDisconnectedEvent::UserDisconnectedEvent( User user ) : Event( user, Type::user_disconnected )
+UserDisconnectedEvent::UserDisconnectedEvent( const User user ) : Event( user, Type::user_disconnected )
 {
 }
 

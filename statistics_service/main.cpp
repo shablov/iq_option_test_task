@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <signal.h>
+#include <unistd.h>
 
 #include <libs/common.h>
 #include <libs/event.h>
@@ -16,7 +17,7 @@ int main( int argc, char* argv[] )
 		return -1;
 	}
 
-	static std::atomic< bool > stopped(false);
+	static std::atomic< bool > stopped( false );
 	static PacketsHandler packets_handler( argv[ 2 ], static_cast< uint16_t >( std::stoul( argv[ 3 ] ) ) );
 	static EventsHandler events_handler( packets_handler );
 
@@ -28,30 +29,26 @@ int main( int argc, char* argv[] )
 
 	signal( SIGINT, stop_tasks );
 
-	std::thread events_thread( []() { events_handler.proccesing(); } );
-	std::thread packets_thread( []() { packets_handler.proccesing(); } );
+	std::thread events_thread( [] { events_handler.procesing(); } );
+	std::thread packets_thread( [] { packets_handler.proccesing(); } );
 
-	std::thread receive_thread( [port = argv[ 1 ]]() {
+	std::thread receive_thread( [port = argv[ 1 ]] {
 		auto _socket = createSocket();
 		bindSocket( _socket, static_cast< uint16_t >( std::stoul( port ) ) );
 
 		constexpr size_t buffer_length = 1024;
-		std::string buffer;
+		std::string buffer( buffer_length, '\0' );
 		while ( !stopped.load() ) {
-			buffer.resize( buffer_length );
-			auto readBytes = recv( _socket, buffer.data(), buffer.size(), 0 );
-			if ( readBytes <= 0 ) {
+			if ( auto readBytes = recv( _socket, buffer.data(), buffer.size(), 0 ); readBytes <= 0 ) {
 				continue;
 			}
-			buffer.resize( static_cast< size_t >( readBytes ) );
 
 			std::istringstream ss( buffer );
 
 			BaseEvent base_event;
 			ss >> base_event;
 
-			auto event = Event::createEvent( base_event );
-			if ( event ) {
+			if ( auto event = Event::createEvent( base_event ); event ) {
 				ss >> *event;
 				events_handler.put( std::move( event ) );
 			}
@@ -67,8 +64,6 @@ int main( int argc, char* argv[] )
 	receive_thread.join();
 	events_thread.join();
 	packets_thread.join();
-
-	events_handler.printAll();
 
 	return 0;
 }

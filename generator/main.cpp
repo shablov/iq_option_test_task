@@ -142,11 +142,12 @@ void writeEvent( std::ostream& outStream, const Event& baseEvent, Generator& gen
 
 int main( int argc, char* argv[] )
 {
-	auto file_path = std::experimental::filesystem::path( "data.bin" );
+	auto filename = "data.bin";
+
 	auto begin = std::chrono::steady_clock::now();
-	std::ofstream file( file_path.c_str(), std::ios::binary );
+	std::ofstream file( filename, std::ios::binary );
 	if ( !file.is_open() ) {
-		std::cerr << "Cannot open file " << file_path.c_str() << "." << std::endl;
+		std::cerr << "Cannot open file " << filename << "." << std::endl;
 		return -1;
 	}
 
@@ -168,7 +169,7 @@ int main( int argc, char* argv[] )
 	auto end = std::chrono::steady_clock::now();
 
 	std::cout << std::chrono::duration_cast< std::chrono::seconds >( end - begin ).count() << " "
-	          << std::experimental::filesystem::file_size( file_path ) / 1024.0 << std::endl;
+	          << std::experimental::filesystem::file_size( filename ) / 1024.0 << "\n";
 
 	return 0;
 }

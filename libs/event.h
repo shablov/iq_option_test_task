@@ -22,8 +22,10 @@ public:
 		user_connected,
 		user_disconnected,
 	};
+	friend std::ostream& operator<<( std::ostream& out_stream, const Type& type );
+	friend std::istream& operator>>( std::istream& in_stream, const Type& type );
 
-	Event( User user, Type type );
+	Event( const User user, const Type type );
 	Event() = default;
 	Event( const Event& ) = default;
 	Event& operator=( const Event& ) = default;
@@ -31,12 +33,10 @@ public:
 	Event& operator=( Event&& ) = default;
 	virtual ~Event() = default;
 
-	Type type() const;
-	void setType( const Type& type );
+	Type type() const noexcept;
+	void setType( const Type& type ) noexcept;
 
-	const char* type_name() const;
-
-	User user() const;
+	User user() const noexcept;
 	void setUser( const User& user );
 
 	static std::unique_ptr< Event > createEvent( const Event& event );
@@ -68,10 +68,10 @@ class UserRegisteredEvent : public Event
 {
 public:
 	UserRegisteredEvent( const Event& event );
-	UserRegisteredEvent( User user, std::string_view name );
+	UserRegisteredEvent( const User user, const std::string_view name );
 
 	std::string name() const;
-	void setName( const std::string& name );
+	void setName(const std::string_view name );
 
 private:
 	std::ostream& to_stream( std::ostream& out_stream ) const override;
@@ -84,10 +84,10 @@ class UserRenamedEvent : public Event
 {
 public:
 	UserRenamedEvent( const Event& event );
-	UserRenamedEvent( User user, std::string_view name );
+	UserRenamedEvent( const User user, const std::string_view name );
 
 	std::string name() const;
-	void setName( const std::string& name );
+	void setName(const std::string_view name );
 
 private:
 	std::ostream& to_stream( std::ostream& out_stream ) const override;
@@ -100,12 +100,12 @@ class UserDealWonEvent : public Event
 {
 public:
 	UserDealWonEvent( const Event& event );
-	UserDealWonEvent( User user, std::chrono::nanoseconds time, int64_t amount );
+	UserDealWonEvent( const User user, const std::chrono::nanoseconds time, const int64_t amount );
 
-	std::chrono::nanoseconds time() const;
+	std::chrono::nanoseconds time() const noexcept;
 	void setTime( const std::chrono::nanoseconds& time );
 
-	int64_t amount() const;
+	int64_t amount() const noexcept;
 	void setAmount( const int64_t& amount );
 
 private:
@@ -113,14 +113,14 @@ private:
 	std::istream& finish_reading( std::istream& in_stream ) override;
 
 	std::chrono::nanoseconds _time;
-	int64_t _amount;
+	int64_t _amount = {};
 };
 
 class UserConnectedEvent : public Event
 {
 public:
 	UserConnectedEvent( const Event& event );
-	UserConnectedEvent( User user );
+	UserConnectedEvent( const User user );
 
 private:
 	std::ostream& to_stream( std::ostream& out_stream ) const override;
@@ -131,7 +131,7 @@ class UserDisconnectedEvent : public Event
 {
 public:
 	UserDisconnectedEvent( const Event& event );
-	UserDisconnectedEvent( User user );
+	UserDisconnectedEvent( const User user );
 
 private:
 	std::ostream& to_stream( std::ostream& out_stream ) const override;

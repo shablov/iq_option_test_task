@@ -11,10 +11,10 @@ struct StatisticsComparator
 {
 	using value_type = std::pair< int64_t, Event::User >;
 
-	bool operator()( const value_type& lhs, const value_type& rhs )
+	bool operator()( const value_type& lhs, const value_type& rhs ) const
 	{
-		auto [ lhs_amount, lhs_id ] = lhs;
-		auto [ rhs_amount, rhs_id ] = rhs;
+		const auto [ lhs_amount, lhs_id ] = lhs;
+		const auto [ rhs_amount, rhs_id ] = rhs;
 		if ( lhs_amount == rhs_amount ) {
 			return lhs_id < rhs_id;
 		}

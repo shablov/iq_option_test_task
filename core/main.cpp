@@ -23,7 +23,7 @@ int main( int argc, char* argv[] )
 	signal( SIGINT, stop_tasks );
 
 	uint16_t receive_port = static_cast< uint16_t >( std::stoul( argv[ 1 ] ) );
-	std::thread receive_thread( [receive_port]() {
+	std::thread receive_thread( [receive_port] {
 		auto socket_fd = createSocket();
 		bindSocket( socket_fd, receive_port );
 
@@ -37,7 +37,7 @@ int main( int argc, char* argv[] )
 			}
 			buffer.resize( static_cast< size_t >( readBytes ) );
 
-			std::cout << buffer << std::endl;
+			std::cout << buffer << "\n";
 		}
 
 		close( socket_fd );

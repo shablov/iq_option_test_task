@@ -14,18 +14,20 @@
 struct Packet
 {
 	Event::User user;
-	int64_t position;
+	size_t position;
 	SortedStatistic top;
 	SortedStatistic near;
+
+	friend std::ostream& operator<<( std::ostream& out, const Packet& packet );
 };
 
 class PacketsHandler
 {
 public:
-	PacketsHandler( std::string_view address, uint16_t port );
+	PacketsHandler( const std::string_view address, const uint16_t port );
 	~PacketsHandler();
 
-	void replace( std::vector< Packet >&& packets );
+	void put( std::vector< Packet >&& packets );
 	void put( Packet&& packet );
 
 	void proccesing();
@@ -35,15 +37,15 @@ public:
 private:
 	bool pop();
 
-	void send( const std::string& data );
+	void send( const std::string_view data );
 
 	std::atomic< bool > _stopped;
 	std::mutex _mutex;
 	std::condition_variable _condition_variable;
 
 	std::deque< Packet > _unhandled_packets;
-	std::vector< Packet > _processing_packets;
+	Packet _processing_packet;
 
-	int _socket_fd;
-	struct sockaddr_in _sockaddr;
+	const int _socket;
+	const struct sockaddr_in _sockaddr;
 };

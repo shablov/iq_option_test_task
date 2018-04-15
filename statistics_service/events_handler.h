@@ -2,13 +2,9 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <cstddef>
 #include <deque>
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <mutex>
-#include <set>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
@@ -26,19 +22,13 @@ public:
 
 	void put( std::unique_ptr< Event >&& event );
 
-	void proccesing();
+	void procesing();
 
 	void stopProcessing();
 
-	void printAll()
-	{
-		std::cout << "print_all" << std::endl;
-		for ( auto& e : _sorted_statistics ) {
-			std::cout << "user_id: " << e.second << " amount: " << e.first << "\n";
-		}
-	}
-
 private:
+	static constexpr int neighbors_count = 10;
+
 	bool pop();
 
 	void registered( const UserRegisteredEvent& event );
@@ -47,27 +37,32 @@ private:
 	void dealWon( const UserDealWonEvent& event );
 	void disconnected( const UserDisconnectedEvent& event );
 
-	void addNewUser( Event::User user, std::string_view name );
+	void addNewUser( const Event::User user, const std::string_view name );
 
-	void sendUserStatistics( Event::User user );
+	void sendUserStatistics( const Event::User user );
 
-	Packet getUserStatistics( Event::User user );
+	Packet userStatistic( const Event::User user ) const;
+
+	SortedStatistic::const_iterator userRank( const Event::User user ) const;
+
+	SortedStatistic topStatistic() const;
+	SortedStatistic neigborsStatistic( const SortedStatistic::const_iterator rank, const size_t position ) const;
 
 	void sendPacket( Packet&& packet );
 
-	auto getUserRank( Event::User user );
+	void updateUserStatistics( const Event::User user, const int64_t amount, const std::chrono::nanoseconds time );
 
-	void updateUserStatistics( Event::User user, int64_t amount, std::chrono::nanoseconds time );
-
-	bool isNextMinute( std::chrono::nanoseconds time ) const;
-
-	bool isNewWeek( std::chrono::nanoseconds time ) const;
+	bool isNewWeek( const std::chrono::nanoseconds time ) const noexcept;
 
 	void clearStatistics();
 
+	bool isNextMinute( const std::chrono::nanoseconds time ) const noexcept;
+
+	void addUserAmount( const Event::User user, const int64_t amount );
+
 	void sendPackets();
 
-	void updateTime( std::chrono::nanoseconds time );
+	void updateTime( const std::chrono::nanoseconds time ) noexcept;
 
 	std::atomic< bool > _stopped;
 	std::mutex _mutex;
@@ -78,7 +73,7 @@ private:
 
 	std::unordered_map< Event::User, std::string > _registered_users;
 
-	std::chrono::nanoseconds last_update_time;
+	std::chrono::nanoseconds last_update_week_time;
 	std::unordered_set< Event::User > _connected_users;
 	Statistics _statistics;
 	SortedStatistic _sorted_statistics;
