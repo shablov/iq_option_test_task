@@ -170,32 +170,5 @@ int main( int argc, char* argv[] )
 	std::cout << std::chrono::duration_cast< std::chrono::seconds >( end - begin ).count() << " "
 	          << std::experimental::filesystem::file_size( file_path ) / 1024.0 << std::endl;
 
-	begin = std::chrono::steady_clock::now();
-	std::ifstream in_file( file_path.c_str(), std::ios::binary );
-	if ( !in_file.is_open() ) {
-		std::cerr << "Cannot open file " << file_path.c_str() << "." << std::endl;
-		return -1;
-	}
-
-	std::deque< std::unique_ptr< Event > > events;
-	std::ofstream file_copy( "data_copy.bin", std::ios::binary );
-	while ( !in_file.eof() ) {
-		BaseEvent base_event;
-		in_file >> base_event;
-
-		std::unique_ptr< Event > event = Event::createEvent( base_event );
-
-		if ( event ) {
-			in_file >> *event;
-			file_copy << *event << "\n";
-			events.push_back( std::move( event ) );
-		}
-	}
-	in_file.close();
-	end = std::chrono::steady_clock::now();
-
-	std::cout << std::chrono::duration_cast< std::chrono::seconds >( end - begin ).count() << " "
-	          << std::experimental::filesystem::file_size( file_path ) / 1024.0 << std::endl;
-
 	return 0;
 }
