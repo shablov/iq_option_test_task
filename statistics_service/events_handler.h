@@ -2,12 +2,14 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstddef>
 #include <deque>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <set>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -51,7 +53,7 @@ private:
 
 	Packet getUserStatistics( Event::User user );
 
-	void sendPacket(Packet&& packet );
+	void sendPacket( Packet&& packet );
 
 	auto getUserRank( Event::User user );
 

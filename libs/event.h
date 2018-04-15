@@ -1,9 +1,11 @@
 #pragma once
 
 #include <chrono>
+#include <cstddef>
 #include <iosfwd>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 class Event
@@ -30,12 +32,12 @@ public:
 	virtual ~Event() = default;
 
 	Type type() const;
-	void setType(const Type& type);
+	void setType( const Type& type );
 
 	const char* type_name() const;
 
 	User user() const;
-	void setUser(const User& user);
+	void setUser( const User& user );
 
 	static std::unique_ptr< Event > createEvent( const Event& event );
 

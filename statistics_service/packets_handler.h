@@ -2,7 +2,9 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstddef>
 #include <deque>
+#include <string_view>
 #include <vector>
 
 #include <arpa/inet.h>

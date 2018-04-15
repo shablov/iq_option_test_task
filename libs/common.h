@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <string_view>
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
