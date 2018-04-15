@@ -6,4 +6,7 @@ project(iq_option_test_task)
 
 add_custom_target(task SOURCES task.txt)
 
+add_subdirectory(core)
 add_subdirectory(generator)
+add_subdirectory(libs)
+add_subdirectory(statistics_service)
