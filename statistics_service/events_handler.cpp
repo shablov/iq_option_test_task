@@ -1,7 +1,6 @@
 #include "events_handler.h"
 
 #include <algorithm>
-#include <functional>
 
 EventsHandler::EventsHandler( PacketsHandler& packetsHandler ) : _packets_handler( packetsHandler )
 {
@@ -24,23 +23,23 @@ void EventsHandler::procesing()
 					break;
 				}
 				case Event::Type::user_registered: {
-					registered( static_cast< UserRegisteredEvent >( *event ) );
+					registered( static_cast< UserRegisteredEvent& >( *event ) );
 					break;
 				}
 				case Event::Type::user_renamed: {
-					renamed( static_cast< UserRenamedEvent >( *event ) );
+					renamed( static_cast< UserRenamedEvent& >( *event ) );
 					break;
 				}
 				case Event::Type::user_deal_won: {
-					dealWon( static_cast< UserDealWonEvent >( *event ) );
+					dealWon( static_cast< UserDealWonEvent& >( *event ) );
 					break;
 				}
 				case Event::Type::user_connected: {
-					connected( static_cast< UserConnectedEvent >( *event ) );
+					connected( static_cast< UserConnectedEvent& >( *event ) );
 					break;
 				}
 				case Event::Type::user_disconnected: {
-					disconnected( static_cast< UserDisconnectedEvent >( *event ) );
+					disconnected( static_cast< UserDisconnectedEvent& >( *event ) );
 					break;
 				}
 			}

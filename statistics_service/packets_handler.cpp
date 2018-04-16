@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <iostream>
+#include <ostream>
 #include <sstream>
 
 #include <unistd.h>
@@ -12,7 +12,7 @@
 std::ostream& operator<<( std::ostream& out, const Packet& packet )
 {
 	auto add_user_to_packet = [&out]( const auto& value ) {
-		const auto [ id, amount ] = value;
+		const auto [ amount, id ] = value;
 		out << "\tid: " << id << " amount: " << amount << "\n";
 	};
 
